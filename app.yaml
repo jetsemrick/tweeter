@@ -7,7 +7,7 @@ handlers:
     static_files: www/index.html
     upload: www/index.html
 
- - url: /(.+\.php)$
+  - url: /(.+\.php)$
     script: \1
 
   - url: /(.*)
