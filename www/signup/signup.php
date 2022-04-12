@@ -1,9 +1,8 @@
 <?php
   $mysqli = new mysqli("mysql.eecs.ku.edu","j939s316","eegh9Ah7","j939s316");
-  
 
   $userid = $_POST['username'];
-  $pass = $_POST['username'];
+  $pass = $_POST['password'];
   
   if($mysqli->connect_errno)
   {
