@@ -7,8 +7,8 @@ handlers:
     static_files: www/index.html
     upload: www/index.html
 
-  - url: /signup/.*
-    script: signup.php
+ - url: /(.+\.php)$
+    script: \1
 
   - url: /(.*)
     static_files: www/\1
