@@ -1,5 +1,5 @@
 <?php
-  $mysqli = new mysqli("mysql.eecs.ku.edu","j939s316","eegh9Ah7","j939s316");
+  $mysqli = new mysqli("mysql.eecs.ku.edu","n791d901","feos9Ahd","n791d901");
 
   echo "<a href='signup.html'>Back</a>";
   echo "<br>";
@@ -19,12 +19,13 @@
       exit();
   }
 
-  $query = "SELECT user_id FROM Users WHERE user_id='$userid'";
+  $query = "SELECT userid FROM Users WHERE userid='$userid'";
   
   if ($result = $mysqli->query($query))
   {
-      while ($row = $result->fetch_assoc()) {
-          if ($userid == $row['user_id'])
+      while ($row = $result->fetch_assoc()) 
+      {
+          if ($userid == $row['userid'])
           {
               echo "Username is already taken.";
               exit();
@@ -34,7 +35,7 @@
       $result->free();
   }
 
-  $query = "INSERT INTO USERS (user_id, password) VALUES ('$userid','$pass')";
+  $query = "INSERT INTO Users (userid, password) VALUES ('$userid','$pass')";
   mysqli_query($mysqli, $query);
   echo "$userid has been created"; 
 
