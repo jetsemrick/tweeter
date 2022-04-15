@@ -26,3 +26,12 @@ Open `localhost` (or configured port) in browser.
 - HTML, PHP 8.1.4, JS
 - CSS was bootstrapped with [HTML Bootstrap v5.3](https://getbootstrap.com/docs/5.1/getting-started/introduction/)
 - MySQL
+
+## To-Do
+
+- [X] Frameworking
+- [ ] Implement [this](https://codeshack.io/basic-login-system-nodejs-express-mysql/) login system
+- [ ] User profile page
+- [ ] After login, display tweets on main page
+    - [ ] Add "public" tweets that non-loggedin users can see
+
