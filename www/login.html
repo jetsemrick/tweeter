@@ -13,9 +13,9 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a href="index.html" class="navbar-brand"><img src="static/img/logo.png" alt="" height="30"></a>
-        <a class="navbar-brand" href="index.html">Tweeter</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <a href="/" class="navbar-brand"><img src="/www/static/img/logo.png" alt="" height="30"></a>
+        <a class="navbar-brand" href="/">Tweeter</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -26,22 +26,30 @@
     <div class="container">
       <div class="row">
         <div class="d-flex justify-content-center flex-nowrap">
-          <img src="static/img/logo.png" alt="" height="200px">
+          <img src="/www/static/img/logo.png" alt="" height="200px">
         </div>
       </div>
       <div class="row">
         <div class="d-flex justify-content-center flex-nowrap">
-          <form id="signup" action="login.php" method="post">
+          <!-- Login form -->
+          <form id="login" action="/login" method="post">
+            
             <div class="mb-3">
               <label for="username" class="form-label">Username</label>
-              <input type="text" class="form-control" id="username" name="username">
+              <input type="text" class="form-control" id="username" name="username" required>
             </div>
+            
             <div class="mb-3">
-              <label for="pass" class="form-label">Password</label>
-              <input type="password" class="form-control" id="pass" name="password">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn btn-success">Login</button>
+            
+            <div class="mb-3">
+              <button type="submit" class="btn btn-success">Login</button>
+              <div id="noAccountHelp" class="form-text">Don't have an account? <a href="register">Click here</a>.</div>
+            </div>
           </form>
+          <!-- end of Login form -->
         </div>
       </div>
     </div>

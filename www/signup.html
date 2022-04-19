@@ -13,8 +13,8 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a href="index.html" class="navbar-brand"><img src="static/img/logo.png" alt="" height="30"></a>
-        <a class="navbar-brand" href="index.html">Tweeter</a>
+        <a href="/" class="navbar-brand"><img src="/www/static/img/logo.png" alt="" height="30"></a>
+        <a class="navbar-brand" href="/">Tweeter</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -27,31 +27,31 @@
 
       <div class="row">
         <div class="d-flex justify-content-center flex-nowrap">
-          <img src="static/img/logo.png" alt="" height="200px">
+          <img src="/www/static/img/logo.png" alt="" height="200px">
         </div>
       </div>
 
       <div class="row">
         <div class="d-flex justify-content-center flex-nowrap">
-          <form id="signup" action="signup.php" method="post">
+          <form id="signup" action="register" method="post">
 
             <label for="newUserName" class="form-label">Username</label>
             <div class="input-group mb-3">
               <span class="input-group-text">@</span>
-              <input type="text" class="form-control" id="newUserName" placeholder="Username">
+              <input type="text" class="form-control" id="newUserName" name='username' placeholder="Username" required>
             </div>
 
             <label for="newUserEmail" class="form-label">Email</label>
             <div class="mb-3">
-              <input type="email" class="form-control" id="newUserEmail" placeholder="jane.doe@tweeter.io">
+              <input type="email" class="form-control" id="newUserEmail" name='email' placeholder="jane.doe@tweeter.com" required>
             </div>
             
             <div class="mb-3">
-              <label for="new-user-pass" class="form-label">Password</label>
-              <input type="password" class="form-control" id="new-user-pass">
-
+              <label for="newUserPass" class="form-label">Password</label>
+              <input type="password" class="form-control" id="newUserPass" name="password" required>
               <div id="usernameHelp" class="form-text">Welcome to Tweeter! Please choose a unique public username.</div>
             </div>
+            
             <button type="submit" class="btn btn-success">Sign Up</button>
           </form>
         </div>

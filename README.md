@@ -6,32 +6,37 @@ Project for EECS 647 Databases. The goal of this project is to create a Twitter-
 ## Installation Instructions
 
 ### Windows / Linux / MacOS:
-Requires PHP server version 8.1.4 or later. For quick installation of PHP + webserver, use [XAMPP](https://www.apachefriends.org/index.html).
+Requires NodeJS to run. For quick installation:
 
-Clone the project directory; copy project path into `DocumentRoot` directives in `apache.conf` for XAMPP. For more details, see [here](https://stackoverflow.com/questions/18902887/how-to-configuring-a-xampp-web-server-for-different-root-directory).
+1) Clone the project directory;
 
-It should look similar to this:
+2) Make sure to install Node v16.14.2
+
+3) Run the following commands in the project directory:
 
 ```
-# symbolic links and aliases may be used to point to other locations.
-#
-DocumentRoot "C:\Users\Nathan\Documents\GitHub\AFCRichmond\www"
-<Directory "C:\Users\Nathan\Documents\GitHub\AFCRichmond\www">
-    #
+> npm install
+> node server.js
 ```
 
-Open `localhost` (or configured port) in browser.
+Open `localhost:3000` in browser to access the website.
 
 ## Tech Stack
-- HTML, PHP 8.1.4, JS
+- HTML, NodeJS
 - CSS was bootstrapped with [HTML Bootstrap v5.3](https://getbootstrap.com/docs/5.1/getting-started/introduction/)
 - MySQL
 
 ## To-Do
 
 - [X] Frameworking
-- [ ] Implement [this](https://codeshack.io/basic-login-system-nodejs-express-mysql/) login system
+- [X] Implement [this](https://codeshack.io/basic-login-system-nodejs-express-mysql/) login system    
+**Completion note**
+    - The authentication system uses session-based cookies
+    - The user is prompted to log in if their session isn't authenticated
+    - If the user doesn't have an account, they can still reach the register page.
+    - Otherwise, they can view the whole site like normal.
+- [ ] Add password hashing
 - [ ] User profile page
 - [ ] After login, display tweets on main page
-    - [ ] Add "public" tweets that non-loggedin users can see
+
 
