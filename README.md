@@ -1,7 +1,7 @@
 ## AFCRichmond
 Developed by *Nathan Dodson, Taylor Himelhoch, Jet Semrick*
 
-Project for EECS 647 Databases. The goal of this project is to create a Twitter-like application to demonstrate database implementation.
+Project for EECS 647 Databases. The goal of this project is to create a Twitter-like application, deemed *Tweeter*, to demonstrate database implementation.
 
 ## Installation Instructions
 
@@ -37,7 +37,14 @@ Open `localhost:3000` in browser to access the website.
     - Otherwise, they can view the whole site like normal.
 - [X] Add password hashing
 - [ ] User profile page
+  - [ ] Query for user information
+  - [ ] Query for user posts/comments
+  - [ ] Forms to update password/email
+  - [ ] Bio? Other information
+  - [ ] Profile pictures
 - [ ] After login, display tweets on main page
+  - [ ] Each tweet allows comment
+  - [ ] Post button on main page
 
 ## Project Requirements
 
@@ -50,11 +57,11 @@ Open `localhost:3000` in browser to access the website.
   - [ ] Users can see the number of likes on a post.
   - [ ] Users can see posts from their friends.
   - [ ] Users can see their friends list.
-  - [ ] Users can view the email of users who post a comment (join).. 
+  - [ ] Users can view the email of users who post a comment (join). 
 
 - [ ] At least 2 queries with join
-- [X] Database update
-  - Register functionality updates the database
+- [ ] Database update
+  - Change user password
 - [ ] Use "Session"
 
 - [ ] Project Report

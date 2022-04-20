@@ -90,6 +90,10 @@ app.post('/register', async (req, res) => {
   });
 });
 
+app.get('/profile', (req, res) => {
+	res.sendFile('/www/profile.html', { root :__dirname });
+  });
+
 // logout by destroying session and redirecting to homepage
 app.get('/logout', (req, res) => {
   req.session.destroy();
