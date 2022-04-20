@@ -1,9 +1,10 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const sessions = require('express-session');
 var mysql = require('mysql');
+const bcrypt = require("bcrypt");
 
 const HTTP_PORT = 3000
 
@@ -52,7 +53,7 @@ app.post('/login', async (req, res) => {
 
     if(result.length == 0) {
       res.send("No account with that username/password combination exists. Please <a href='/'>go back</a> and try again.");
-    } else if((result[0].userid == req.body.username || result[0].email == req.body.username) && result[0].password == req.body.password) {
+    } else if((result[0].userid == req.body.username || result[0].email == req.body.username) && bcrypt.compareSync(req.body.password, result[0].password)) {
       session = req.session;
       session.uid = req.body.username;
       
@@ -77,11 +78,14 @@ app.post('/register', async (req, res) => {
       res.send("Username or email already in use. Please <a href='/register'>go back</a> and try something different.");
     } else {
       // otherwise, go ahead and make the insert, redirect the user to the home page to try and log in.
-      connection.query("INSERT INTO Users (userid, email, password) VALUES ('" + req.body.username + "','" + req.body.email + "','" + req.body.password + "')", function(err, result, fields) {
-        if(err) throw err;
-        res.send("Account created successfully! You will be redirected in 3 seconds, or <a href='/'>click here</a><script>setTimeout(() => { window.location.replace('/'); }, 3000);</script>");
-        // setTimeout(() => { res.redirect('/'); }, 3000);
-      });
+	  const saltRound = 12;
+	  const hash = bcrypt.hash(req.body.password, saltRound).then((hash) => {
+		connection.query("INSERT INTO Users (userid, email, password) VALUES ('" + req.body.username + "','" + req.body.email + "','" + hash + "')", function(err, result, fields) {
+			if(err) throw err;
+			res.send("Account created successfully! You will be redirected in 3 seconds, or <a href='/'>click here</a><script>setTimeout(() => { window.location.replace('/'); }, 3000);</script>");
+			// setTimeout(() => { res.redirect('/'); }, 3000);
+		  });  
+	  });
     }
   });
 });
