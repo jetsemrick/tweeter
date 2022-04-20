@@ -35,7 +35,7 @@ Open `localhost:3000` in browser to access the website.
     - The user is prompted to log in if their session isn't authenticated
     - If the user doesn't have an account, they can still reach the register page.
     - Otherwise, they can view the whole site like normal.
-- [ ] Add password hashing
+- [X] Add password hashing
 - [ ] User profile page
 - [ ] After login, display tweets on main page
 
