@@ -34,7 +34,7 @@ let connection = mysql.createConnection({
 // serve static files
 app.use(express.static(__dirname));
 
-// when accessing the site, check if a session has been created by looking at if there is a session userid
+// when accessing the site, check if a session has been created by looking at if there is a session username
 app.get('/', (req, res) => {
   session = req.session;
   if(!session.uid) {
@@ -48,12 +48,15 @@ app.get('/', (req, res) => {
 // database logic will go in here to check for a created user already
 app.post('/login', async (req, res) => {
 
-  connection.query("SELECT * FROM Users WHERE userid='" + req.body.username + "' OR email='" + req.body.username + "'", function(err, result, fields) {
+  connection.query(`
+  SELECT * FROM Users 
+  WHERE username='${req.body.username}' 
+  OR email='${req.body.username}'`, function(err, result, fields) {
     if(err) throw err;
 
     if(result.length == 0) {
       res.send("No account with that username/password combination exists. Please <a href='/'>go back</a> and try again.");
-    } else if((result[0].userid == req.body.username || result[0].email == req.body.username) && bcrypt.compareSync(req.body.password, result[0].password)) {
+    } else if((result[0].username == req.body.username || result[0].email == req.body.username) && bcrypt.compareSync(req.body.password, result[0].password)) {
       session = req.session;
       session.uid = req.body.username;
       
@@ -70,29 +73,82 @@ app.get('/register', (req, res) => {
 
 app.post('/register', async (req, res) => {
   // make initial query to check if a user with that uname/email exists
-  connection.query("SELECT userid FROM Users WHERE userid='" + req.body.username + "' OR email='" + req.body.email + "'", function(err, result, fields) {
+  connection.query(`
+  SELECT username FROM Users 
+  WHERE username='${req.body.username}' 
+  OR email='${req.body.username}'`, function(err, result, fields) {
     if(err) throw err;
 
     // if the result is not empty, a user already exists with those parameters and the user needs to try again
+    // checks lengths to match database
     if(result.length > 0) {
       res.send("Username or email already in use. Please <a href='/register'>go back</a> and try something different.");
+    } else if(String(req.body.email).length > 100) {
+      res.send("Email exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.");
+    } else if(String(req.body.password).length > 100) {
+      res.send("Password exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.");
+    } else if(String(req.body.username).length > 12) {
+      res.send("Username exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.");
     } else {
       // otherwise, go ahead and make the insert, redirect the user to the home page to try and log in.
 	  const saltRound = 12;
-	  const hash = bcrypt.hash(req.body.password, saltRound).then((hash) => {
-		connection.query("INSERT INTO Users (userid, email, password) VALUES ('" + req.body.username + "','" + req.body.email + "','" + hash + "')", function(err, result, fields) {
-			if(err) throw err;
-			res.send("Account created successfully! You will be redirected in 3 seconds, or <a href='/'>click here</a><script>setTimeout(() => { window.location.replace('/'); }, 3000);</script>");
-			// setTimeout(() => { res.redirect('/'); }, 3000);
-		  });  
+	  bcrypt.hash(req.body.password, saltRound).then((hash) => {
+      connection.query(`
+      INSERT INTO Users (username, email, password, created_on) 
+      VALUES ('${req.body.username}', '${req.body.email}', '${hash}', NOW())`, function(err, result, fields) {
+        if(err) throw err;
+
+        res.send("Account created successfully! You will be redirected in 3 seconds, or <a href='/'>click here</a><script>setTimeout(() => { window.location.replace('/'); }, 3000);</script>");
+      });  
 	  });
     }
   });
 });
 
 app.get('/profile', (req, res) => {
-	res.sendFile('/www/profile.html', { root :__dirname });
+  session = req.session;
+  if(!session.uid) {
+    res.sendFile('/www/login.html', { root :__dirname });
+  } else {
+    res.sendFile('/www/profile.html', { root :__dirname });
+  }
+});
+
+app.get('/user', (req, res) => {
+  // pull tweets: SELECT post_id,post_content,post_likes,username FROM Posts INNER JOIN Users ON Posts.uid=Users.uid AND Users.uid=3
+  // pull user details for card
+  connection.query(`
+  SELECT * FROM Users,Posts 
+  WHERE username='${req.session.uid}'`, function(err, profile, fields) {
+    if(err) throw err;
+
+    connection.query(`
+    SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
+    FROM Posts 
+    INNER JOIN Users ON Posts.uid=Users.uid 
+    AND Users.uid=
+      (SELECT uid from Users WHERE username='${req.session.uid}') 
+    ORDER BY posted_on DESC`, function(err, tweets, fields) {
+      if(err) throw err;
+
+      res.send({
+        profile: profile,
+        tweets: tweets
+      });
+    });    
   });
+});
+
+app.post('/tweet', (req, res) => {
+  connection.query(`
+  INSERT INTO Posts (post_content, posted_on, uid) 
+  VALUES ('${req.body.tweetBody}', NOW(), 
+    (SELECT uid from Users WHERE username='${req.session.uid}')
+  )`, function(err, result, fields) {
+    if(err) throw err;
+    res.redirect('/profile');
+  });
+});
 
 // logout by destroying session and redirecting to homepage
 app.get('/logout', (req, res) => {

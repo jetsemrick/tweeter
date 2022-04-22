@@ -51,6 +51,10 @@ Open `localhost:3000` in browser to access the website.
 - [ ] 3+ tables
   - [ ] Posts
   - [ ] Users
+  - Posts and users linked with FK `uid`:
+  ```
+  ALTER TABLE Posts ADD FOREIGN KEY (uid) REFERENCES Users(uid);
+  ```
   - [ ] Comments
 - [ ] 5 different (dynamic) queries
   - [ ] Users will be able to look at posts and comments by a username (join). 

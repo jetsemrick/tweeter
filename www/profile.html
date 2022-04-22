@@ -7,10 +7,11 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="/www/static/css/all.css" rel="stylesheet">
 
     <title>Tweeter</title>
   </head>
-  <body>
+  <body onload="getProfile()">
     <!-- Optional JavaScript; choose one of the two! -->
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
@@ -39,9 +40,90 @@
         </div>
       </div>
     </nav>
-    <br>
-    <div class="container-md">
 
+    <br>
+
+    <div class="container h-100">
+      <div class="row h-100" id="profile">
+        <div class="col-3 hidden-md-down h-100">
+          <div class="card text-white bg-dark mb-3" style="max-width: 14rem;">
+            <div class="card-body">
+              <!-- we will not be storing user images, as it is bad practice to store blobs in DB -->
+              <img src="/www/static/img/temp_profile.jpg" alt="" class="img-fluid mx-auto d-block rounded-circle">
+              <br>
+              <h5 class="card-title">@<span id="userCard-name"></span>
+                <a href="/" class="text-success"><i class="fa-light fa-pen-to-square float-end"></i></a>
+              </h5>
+              <i class="card-text">Joined <span id="userCard-joined"></span></i>
+              <p class="card-text" id="userCard-bio"></p>
+            </div>
+            <div class="card-footer">
+              <span># Followers // </span>
+              <span># Following</span>
+            </div>
+          </div>
+          <!-- OR "Stop Following" if already following -->
+          <button class="btn btn-success">Follow</button>
+        </div>
+        <div class="col-9">
+          <div>
+            <div class="card border-success mb-3 container-lg">
+              <div class="card-header bg-transparent border-success">
+                <b>Say something...</b>
+              </div>
+              <div class="card-body"></div>
+              <form action="tweet" method="post">
+                <div class="form-group mb-3">
+                  <textarea class="form-control" id="tweetBody" name="tweetBody" rows="3" maxlength="279" style="resize: none;"></textarea>
+                </div>
+                <div class="form-group mb-3">
+                  <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+              </form>
+            </div>
+            <span id="tweets">
+
+            </span>            
+          </div>
+        </div>
+      </div>
     </div>
   </body>
+  
+  <script>
+    function getProfile() {
+      fetch('/user')
+        .then(response => response.json())
+        .then(data => {
+          
+          created_on = new Date(data.profile[0].created_on);
+
+          document.getElementById("userCard-name").innerHTML = data.profile[0].username;
+          document.getElementById("userCard-bio").innerHTML = data.profile[0].bio;
+          document.getElementById("userCard-joined").innerHTML = created_on.getFullYear();
+          
+          for(let f in data.tweets) {
+            // console.log(data.tweets[f].post_id);
+            posted_on = new Date(data.tweets[f].posted_on);
+
+            document.getElementById("tweets").innerHTML += `
+            <div class="card border-success mb-3 container-lg">
+              <div class="card-header bg-transparent border-success">
+                <b>${data.tweets[f].pref_name}</b> <i>@${data.tweets[f].username}</i><i class="float-end text-success">${posted_on.toLocaleDateString() + " " + posted_on.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</i>
+              </div>
+              <div class="card-body">
+                <div class="lead">${data.tweets[f].post_content}</div>
+              </div>
+              <span class="row h5">
+                <div class="col"><a href="/" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
+                <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${data.tweets[f].post_likes}</div>
+                <div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
+              </span>
+            </div> 
+            `         
+          } 
+        });
+    }
+
+  </script>
 </html>
