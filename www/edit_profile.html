@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link href="/www/static/css/all.css" rel="stylesheet">
+
+    <title>Edit Profile</title>
+  </head>
+  <body onload="getProfile()">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a href="/" class="navbar-brand"><img src="/www/static/img/logo.png" alt="" height="30"></a>
+          <a class="navbar-brand" href="/">Tweeter</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/profile">Profile</a>
+              </li>
+            </ul>
+            <form class="d-flex">
+              <input class="form-control me-2" type="search" placeholder="Search Something...">
+              <button class="btn btn-outline-success me-2" type="submit">Search</button>
+            </form>
+            <a class="btn btn-outline-success" type="button" href="/logout"><i class="fa-light fa-arrow-right-from-bracket"></i></a>
+        </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+      <div class="row">
+        <div class="d-flex justify-content-center flex-nowrap">
+          <img src="/www/static/img/logo.png" alt="" height="200px">
+        </div>
+      </div>
+
+      <div class="row justify-content-center flex-nowrap display-4">Edit Profile</div>
+    <br>
+    <form id="signup" action="/editProfile" method="post">
+      <div class="row">
+            <div class="col">
+                <label for="editUsername" class="form-label">Username</label>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="oldUsername"></span>
+                  <input type="text" class="form-control" id="editUsername" name='username' placeholder="Username">
+                </div>
+
+                <label for="editEmail" class="form-label">Email</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="oldEmail"></span>
+                    <input type="email" class="form-control" id="editEmail" name='email' placeholder="jane.doe@tweeter.com">
+                </div>
+
+                <div class="mb-3">
+                    <label for="newUserPass" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newUserPass" name="newPassword">
+                </div>
+            </div>
+            <div class="col">
+                <label for="editFullName" class="form-label">Full Name</label>
+                <div class="input-group mb-3">
+                  <span class="input-group-text" id="oldFullName"></span>
+                  <input type="text" class="form-control" id="editFullName" name='pref_name' placeholder="Jane Doe">
+                </div>
+    
+                <label for="editBio" class="form-label">Bio</label>
+                <div class="mb-3">
+                  <textarea class="form-control" id="editBio" style="height: auto;" name='bio' maxlength="160" placeholder="Time to change the world"></textarea>
+                  <div id="usernameHelp" class="form-text">Bios have a 160 character limit</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+        <div class="col">
+            <div class="mb-3">
+                <label for="newUserPass" class="form-label">Old Password</label>
+                <input type="password" class="form-control" id="newUserPass" name="password" required>
+                <div class="form-text">Please enter your password to make a change</div>
+            </div>
+            <div class="flex-nowrap"><button type="submit" class="btn btn-success">Submit Changes</button><button type="submit" class="btn btn-danger float-end"><i class="fa-light fa-trash-can"></i> Delete Account</button></div>
+        </div>
+        <div class="col"></div>
+      </div>
+    </form>
+    </div>
+  </body>
+
+  <script>
+    function getProfile() {
+      fetch('/editProfile')
+        .then(response => response.json())
+        .then(data => {
+
+          document.getElementById("oldUsername").innerHTML = "@" + data.profile[0].username;
+          document.getElementById("oldEmail").innerHTML = data.profile[0].email;
+          document.getElementById("oldFullName").innerHTML = data.profile[0].pref_name;
+        });
+    }
+
+  </script>
+
+</html>

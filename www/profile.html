@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <link href="/www/static/css/all.css" rel="stylesheet">
 
-    <title>Tweeter</title>
+    <title id="title">Tweeter</title>
   </head>
   <body onload="getProfile()">
     <!-- Optional JavaScript; choose one of the two! -->
@@ -34,9 +34,9 @@
           </ul>
           <form class="d-flex">
             <input class="form-control me-2" type="search" placeholder="Search Something...">
-            <button class="btn btn-outline-success" type="submit">Search</button>
+            <button class="btn btn-outline-success me-2" type="submit">Search</button>
           </form>
-          <a class="btn btn-link" href="logout" role="button" id="logout">Logout</a>
+          <a class="btn btn-outline-success" type="button" href="/logout"><i class="fa-light fa-arrow-right-from-bracket"></i></a>
         </div>
       </div>
     </nav>
@@ -52,7 +52,7 @@
               <img src="/www/static/img/temp_profile.jpg" alt="" class="img-fluid mx-auto d-block rounded-circle">
               <br>
               <h5 class="card-title">@<span id="userCard-name"></span>
-                <a href="/" class="text-success"><i class="fa-light fa-pen-to-square float-end"></i></a>
+                <a href="/profile/edit" class="text-success"><i class="fa-light fa-pen-to-square float-end"></i></a>
               </h5>
               <i class="card-text">Joined <span id="userCard-joined"></span></i>
               <p class="card-text" id="userCard-bio"></p>
@@ -74,7 +74,7 @@
               <div class="card-body"></div>
               <form action="tweet" method="post">
                 <div class="form-group mb-3">
-                  <textarea class="form-control" id="tweetBody" name="tweetBody" rows="3" maxlength="279" style="resize: none;"></textarea>
+                  <textarea class="form-control" id="tweetBody" name="tweetBody" rows="3" maxlength="279" style="resize: none;" placeholder="_____ is the night :0" required></textarea>
                 </div>
                 <div class="form-group mb-3">
                   <button type="submit" class="btn btn-success">Submit</button>
@@ -82,7 +82,7 @@
               </form>
             </div>
             <span id="tweets">
-
+            <!-- Tweets auto-fill in this span -->
             </span>            
           </div>
         </div>
@@ -101,7 +101,8 @@
           document.getElementById("userCard-name").innerHTML = data.profile[0].username;
           document.getElementById("userCard-bio").innerHTML = data.profile[0].bio;
           document.getElementById("userCard-joined").innerHTML = created_on.getFullYear();
-          
+          document.getElementById("title").innerHTML = data.profile[0].username;
+
           for(let f in data.tweets) {
             // console.log(data.tweets[f].post_id);
             posted_on = new Date(data.tweets[f].posted_on);
