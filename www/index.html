@@ -1,26 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link href="/www/static/css/all.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <link href="/www/static/css/all.css" rel="stylesheet" />
 
     <title>Tweeter</title>
   </head>
-  <body>
+  <body onLoad="getFeed()">
     <!-- Optional JavaScript; choose one of the two! -->
     <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-  
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
-        <a href="/" class="navbar-brand"><img src="/www/static/img/logo.png" alt="" height="30"></a>
+        <a href="/" class="navbar-brand"
+          ><img src="/www/static/img/logo.png" alt="" height="30"
+        /></a>
         <a class="navbar-brand" href="/">Tweeter</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+        >
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -33,16 +49,65 @@
             </li>
           </ul>
           <form class="d-flex">
-            <input class="form-control me-2" type="search" placeholder="Search Something...">
-            <button class="btn btn-outline-success me-2" type="submit">Search</button>
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Search Something..."
+            />
+            <button class="btn btn-outline-success me-2" type="submit">
+              Search
+            </button>
           </form>
-          <a class="btn btn-outline-success" type="button" href="/logout"><i class="fa-light fa-arrow-right-from-bracket"></i></a>
+          <a class="btn btn-outline-success" type="button" href="/logout"
+            ><i class="fa-light fa-arrow-right-from-bracket"></i
+          ></a>
         </div>
       </div>
     </nav>
-    <br>
+    <br />
     <div class="container-md">
-
+      <span id="tweets">
+        <!-- Tweets should appear in feed. -->
+      </span>
     </div>
   </body>
+  <script>
+    function getFeed() {
+      fetch("/feed")
+        .then(response => response.json())
+        .then(data => {
+          created_on = new Date(data.feed[0].created_on);
+
+		  for (let f in data.feed) {
+            // console.log(data.tweets[f].post_id);
+            posted_on = new Date(data.feed[f].posted_on);
+
+            document.getElementById("tweets").innerHTML += `
+            <div class="card border-success mb-3 container-lg">
+              <div class="card-header bg-transparent border-success">
+                <b>${data.feed[f].pref_name}</b> <i>@${
+              data.feed[f].username
+            }</i><i class="float-end text-success">${posted_on.toLocaleDateString() +
+              " " +
+              posted_on.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+              })}</i>
+              </div>
+              <div class="card-body">
+                <div class="lead">${data.feed[f].post_content}</div>
+              </div>
+              <span class="row h5">
+                <div class="col"><a href="/" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
+                <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${
+                  data.feed[f].post_likes
+                }</div>
+                <div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
+              </span>
+            </div> 
+            `;
+          }
+        });
+    }
+  </script>
 </html>

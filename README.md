@@ -36,26 +36,28 @@ Open `localhost:3000` in browser to access the website.
     - If the user doesn't have an account, they can still reach the register page.
     - Otherwise, they can view the whole site like normal.
 - [X] Add password hashing
-- [ ] User profile page
-  - [ ] Query for user information
-  - [ ] Query for user posts/comments
-  - [ ] Forms to update password/email
-  - [ ] Bio? Other information
-  - [ ] Profile pictures
-- [ ] After login, display tweets on main page
+- [X] User profile page
+  - [X] Query for user information
+  - [X] Query for user posts/comments
+  - [X] Forms to update password/email
+  - [X] Bio? Other information
+- [X] After login, display tweets on main page
   - [ ] Each tweet allows comment
+  - [ ] Like posts/comments
   - [ ] Post button on main page
 
 ## Project Requirements
 
 - [ ] 3+ tables
-  - [ ] Posts
-  - [ ] Users
+  - [X] Posts
+  - [X] Users
+  - [ ] Comments
   - Posts and users linked with FK `uid`:
   ```
   ALTER TABLE Posts ADD FOREIGN KEY (uid) REFERENCES Users(uid);
   ```
-  - [ ] Comments
+  10 selects, 1 insert, 1 join, 1 update
+
 - [ ] 5 different (dynamic) queries
   - [ ] Users will be able to look at posts and comments by a username (join). 
   - [ ] Users can see the number of likes on a post.
@@ -63,9 +65,11 @@ Open `localhost:3000` in browser to access the website.
   - [ ] Users can see their friends list.
   - [ ] Users can view the email of users who post a comment (join). 
 
-- [ ] At least 2 queries with join
-- [ ] Database update
+- [ ] At least 2 queries with join	
+  - [ ] Join post_id with comments
+- [X] Database update
   - Change user password
+  - Like post
 - [ ] Use "Session"
 
 - [ ] Project Report
