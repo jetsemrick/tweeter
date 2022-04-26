@@ -146,107 +146,104 @@ app.post('/editProfile', (req, res) => {
   connection.query(`
   SELECT * FROM Users 
   WHERE username='${req.session.uid}'`, function(err, result, fields) {
-    if(err) throw err;
+	if(err) throw err;
 
-    if(!bcrypt.compareSync(req.body.password, result[0].password))
-      res.send("Incorrect password. Please <a href='/register'>go back</a> and try again.");
+	pass = result[0].password;
+	username = result[0].username;
+	fullname = result[0].pref_name;
+	email = result[0].email;
+	bio = result[0].bio;
 
-    pass = result[0].password;
-    username = result[0].username;
-    fullname = result[0].pref_name;
-    email = result[0].email;
-    bio = result[0].bio;
+	console.log("Starting edit checks...");
+	console.log(req.body);
 
-    console.log("Starting edit checks...");
-    return;
-  });
+	if(req.body.username != "") {
 
-    console.log(req.body);
+		console.log("Attempting to query username for check"); // LOGGING
+		connection.query(`SELECT username FROM Users WHERE username='${req.body.username}'`, function(err, result, fields) {
+			if(err) throw err;
 
-    if(req.body.username != "") {
+			if(result.length > 0) {
+			console.log("Username already in use"); // LOGGING
+			res.send("Username already in use. Please <a href='/edit/profile'>go back</a> and try something different.");
+			} else if(String(req.body.username).length > 12) {
+			console.log("Username too long"); // LOGGING
+			res.send("Username exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.");
+			}
 
-      console.log("Attempting to query username for check"); // LOGGING
-      connection.query(`SELECT username FROM Users WHERE username='${req.body.username}'`, function(err, result, fields) {
-        if(err) throw err;
+			username = req.body.username;
+			return;
+		});
+		} 
+		
+		if(req.body.pref_name != "") {
+		if(String(req.body.pref_name).length > 20) {
+			console.log("Full Name too long"); // LOGGING
+			res.send("Full name exceeds maximum allowed length of 20 characters. Please <a href='/register'>go back</a> and try something different.");
+		}
 
-        if(result.length > 0) {
-          console.log("Username already in use"); // LOGGING
-          res.send("Username already in use. Please <a href='/edit/profile'>go back</a> and try something different.");
-        } else if(String(req.body.username).length > 12) {
-          console.log("Username too long"); // LOGGING
-          res.send("Username exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.");
-        }
+		fullname = req.body.pref_name;
+		} 
+		
+		if(req.body.email != "") {
+			console.log("Attempting to query email for check"); // LOGGING
+			connection.query(`SELECT email FROM Users WHERE email='${req.body.email}'`, function(err, result, fields) {
+				if(err) throw err;
 
-        username = req.body.username;
-        return;
-      });
-    } 
-    
-    if(req.body.pref_name != "") {
-      if(String(req.body.pref_name).length > 20) {
-        console.log("Full Name too long"); // LOGGING
-        res.send("Full name exceeds maximum allowed length of 20 characters. Please <a href='/register'>go back</a> and try something different.");
-      }
+				if(result.length > 0) {
+				console.log("Email already in use"); // LOGGING
+				res.send("Email already in use. Please <a href='/edit/profile'>go back</a> and try something different.");
+				} else if(String(req.body.email).length > 100) {
+				console.log("Email too long"); // LOGGING
+				res.send("Email exceeds maximum allowed length of 100 characters. Please <a href='/register'>go back</a> and try something different.");
+				}
+				return
+			});
 
-      fullname = req.body.pref_name;
-    } 
-    
-    if(req.body.email != "") {
-      console.log("Attempting to query email for check"); // LOGGING
-      connection.query(`SELECT email FROM Users WHERE email='${req.body.email}'`, function(err, result, fields) {
-        if(err) throw err;
+			email = req.body.email;
+		} 
+		
+		if(req.body.bio != "")
+		{
+			if(String(req.body.bio).length > 160) {
+				res.send("Bio exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.");
+			}
 
-        if(result.length > 0) {
-          console.log("Email already in use"); // LOGGING
-          res.send("Email already in use. Please <a href='/edit/profile'>go back</a> and try something different.");
-        } else if(String(req.body.email).length > 100) {
-          console.log("Email too long"); // LOGGING
-          res.send("Email exceeds maximum allowed length of 100 characters. Please <a href='/register'>go back</a> and try something different.");
-        }
-        return
-      });
+			bio = req.body.bio;
+		} 
+		
+		if(req.body.newPassword != "")
+		{
+			console.log("Starting password check") // LOGGING
+			if(String(req.body.newPassword).length > 100) {
+				console.log("New password too long"); // LOGGING
+				res.send("Password exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.");
+			} else {
+				console.log("Attempting to create new password"); // LOGGING
+				bcrypt.hash(req.body.newPassword, SALT_ROUND).then(function(hash) {
+				pass = hash;
+				console.log("Created new password"); // LOGGING
+				return;
+				});
+				console.log("Got here"); // LOGGING
+			}
+		} 
 
-      email = req.body.email;
-    } 
-    
-    if(req.body.bio != "")
-    {
-      if(String(req.body.bio).length > 160) {
-          res.send("Bio exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.");
-      }
+		fullname = fullname.replace(/'/g, "\\'");
+		bio = bio.replace(/'/g, "\\'");
 
-      bio = req.body.bio;
-    } 
-    
-    if(req.body.newPassword != "")
-    {
-      console.log("Starting password check") // LOGGING
-      if(String(req.body.newPassword).length > 100) {
-          console.log("New password too long"); // LOGGING
-          res.send("Password exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.");
-      } else {
-        console.log("Attempting to create new password"); // LOGGING
-        bcrypt.hash(req.body.newPassword, SALT_ROUND).then(function(hash) {
-          pass = hash;
-          console.log("Created new password"); // LOGGING
-          return;
-        });
-        console.log("Got here"); // LOGGING
-      }
-    }
+		console.log("Attempting query");
+		connection.query(`
+		UPDATE Users
+		SET username = '${username}', password = '${pass}', email = '${email}', pref_name = '${fullname}', bio = '${bio}'
+		WHERE username = '${req.session.uid}'`, function(err, result, fields) {
+			if(err) throw err;
 
-    console.log("Attempting query");
-    connection.query(`
-    UPDATE Users
-    SET username = '${username}', password = '${pass}', email = '${email}', pref_name = '${fullname}', bio = '${bio}'
-    WHERE username = '${req.session.uid}'`, function(err, result, fields) {
-      if(err) throw err;
-
-      console.log("Query successful");
-      req.session.uid = username;
-      res.redirect('/profile');
-    });
-    
+			console.log("Query successful");
+			req.session.uid = username;
+			res.redirect('/profile');
+		});	
+	});
 });
 
 app.get('/user', (req, res) => {
