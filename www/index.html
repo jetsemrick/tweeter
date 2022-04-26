@@ -73,20 +73,12 @@
   </body>
   <script>
     function getFeed() {
-      fetch("/")
+      fetch("/feed")
         .then(response => response.json())
         .then(data => {
           created_on = new Date(data.feed[0].created_on);
 
-          document.getElementById("userCard-name").innerHTML =
-            data.feed[0].username;
-          document.getElementById("userCard-bio").innerHTML = data.feed[0].bio;
-          document.getElementById(
-            "userCard-joined"
-          ).innerHTML = created_on.getFullYear();
-          document.getElementById("title").innerHTML = data.feed[0].username;
-
-          for (let f in data.tweets) {
+		  for (let f in data.feed) {
             // console.log(data.tweets[f].post_id);
             posted_on = new Date(data.feed[f].posted_on);
 

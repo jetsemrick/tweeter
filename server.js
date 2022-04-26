@@ -44,23 +44,34 @@ app.get("/", (req, res) => {
     res.sendFile("/www/login.html", { root: __dirname });
   } else {
     res.sendFile("/www/index.html", { root: __dirname });
-    connection.query(
-      `
-      SELECT * FROM Posts
-    `,
-      function(err, feed, fields) {
-        if (err) throw err;
-        if (result.length == 0) {
-          res.send("No posts found.");
-        } else {
-          res.send({
-            feed: feed
-          });
-        }
-      }
-    );
   }
 });
+
+app.get("/feed", (req, res) => {
+	session = req.session;
+	if (!session.uid) {
+	  res.sendFile("/www/login.html", { root: __dirname });
+	} else {
+	  connection.query(
+		`
+		SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
+		FROM Posts,Users
+		WHERE Posts.uid = Users.uid
+		ORDER BY posted_on DESC
+	  	`,
+		function(err, feed, fields) {
+		  if (err) throw err;
+		  if (feed.length == 0) {
+			res.send("No posts found.");
+		  } else {
+			res.send({
+			  feed: feed
+			});
+		  }
+		}
+	  );
+	}
+  });
 
 // login POST handling. When the form is submitted in the static html file it will try to post to this method.
 // database logic will go in here to check for a created user already
