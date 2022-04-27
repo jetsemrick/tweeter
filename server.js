@@ -420,6 +420,20 @@ app.post('/tweet', (req, res) => {
 	);
 });
 
+app.get('/like', (req, res) => {
+	connection.query(
+		`
+		UPDATE Posts 
+		SET post_likes = post_likes + 1
+		WHERE Posts.post_id="${req.query.pid}"
+		`,
+		function (err) {
+			if (err) throw err;
+			res.redirect(req.get('referer'));
+		}
+	);
+});
+
 app.post('/deleteAccount', (req, res) => {
 	connection.query(
 		`DELETE FROM Posts

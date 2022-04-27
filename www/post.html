@@ -48,16 +48,6 @@
               <a class="nav-link" href="/profile">Profile</a>
             </li>
           </ul>
-          <form class="d-flex">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search Something..."
-            />
-            <button class="btn btn-outline-success me-2" type="submit">
-              Search
-            </button>
-          </form>
           <a class="btn btn-outline-success" type="button" href="/logout"
             ><i class="fa-light fa-arrow-right-from-bracket"></i
           ></a>
@@ -108,9 +98,11 @@
 							<div class="lead">${data.post[0].post_content}</div>
 						</div>
 						<span class="row h5">
-							<div class="col"><a href="/post?pid=${data.post[0].post_id}" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
-							<div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${data.post[0].post_likes}</div>
-							<div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
+							<div class="col text-center">
+								<a href="/post?pid=${data.post[0].post_id}" class="text-success"><i class="fa-light fa-comment"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+								<a href="/like?pid=${data.post[0].post_id}" class="text-success"><i class="fa-light fa-thumbs-up"></i></a>
+								<i class="text-success text-mono">${data.post[0].post_likes}</i>
+							</div>
 						</span>
 					</div> 
 					`
@@ -128,8 +120,6 @@
                 <div class="lead">${data.comments[f].comment_content}</div>
               </div>
               <span class="row h5">
-                <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${data.comments[f].comment_likes}</div>
-                <div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
               </span>
             </div> 
             `         
