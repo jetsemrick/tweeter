@@ -83,6 +83,11 @@ app.get('/post*', (req, res) => {
 });
 // --------------------------------
 
+
+// API HANDLERS
+// --------------------------------
+// All of the individual API endpoints that make requests to the DB
+
 // login POST handling. When the form is submitted in the static html file it will try to post to this method.
 // database logic will go in here to check for a created user already
 app.post('/login', async (req, res) => {
@@ -117,6 +122,7 @@ app.post('/login', async (req, res) => {
 	);
 });
 
+// Registration handler. Will verfiy that the input fields match the requirements of the database fields
 app.post('/register', async (req, res) => {
 	// make initial query to check if a user with that uname/email exists
 	connection.query(
@@ -166,6 +172,7 @@ app.post('/register', async (req, res) => {
 	);
 });
 
+// Feed handler. Will retrieve all posts from all users and order them by most recently posted.
 app.get('/feed', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -190,6 +197,7 @@ app.get('/feed', (req, res) => {
 	}
 });
 
+// GET edit profile handler. Used to get current profile information for comparison before changing aspects of the user profile.
 app.get('/editProfile', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -211,6 +219,7 @@ app.get('/editProfile', (req, res) => {
 	}
 });
 
+// Large POST request to handle errors, compare new/old passwords, etc.
 app.post('/editProfile', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -218,7 +227,7 @@ app.post('/editProfile', (req, res) => {
 		let pass, username, fullname, email, bio;
 		let errors = '';
 
-		console.log('Starting initial user query');
+		console.log('Starting initial user query'); // LOGGING
 
 		connection.getConnection(function (err, conn) {
 			conn.query(
@@ -344,6 +353,7 @@ app.post('/editProfile', (req, res) => {
 	}
 });
 
+// Gets user information and tweets
 app.get('/user', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -378,6 +388,7 @@ app.get('/user', (req, res) => {
 	}
 });
 
+// Gets post and comments on that post.
 app.get('/getPost', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -410,6 +421,7 @@ app.get('/getPost', (req, res) => {
 	}
 });
 
+// POSTs comment on post.
 app.post('/comment', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -428,6 +440,7 @@ app.post('/comment', (req, res) => {
 	}
 });
 
+// Makes Tweet POST
 app.post('/tweet', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -446,6 +459,7 @@ app.post('/tweet', (req, res) => {
 	}
 });
 
+// Likes a Post
 app.get('/like', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
@@ -464,6 +478,7 @@ app.get('/like', (req, res) => {
 	}
 });
 
+// Delete account and associated tweets.
 app.post('/deleteAccount', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
