@@ -73,6 +73,10 @@ app.get("/feed", (req, res) => {
   }
 });
 
+app.get("/comment", (req, res) => {
+  res.sendFile("/www/comment.html", { root: __dirname });
+});
+
 // login POST handling. When the form is submitted in the static html file it will try to post to this method.
 // database logic will go in here to check for a created user already
 app.post("/login", async (req, res) => {

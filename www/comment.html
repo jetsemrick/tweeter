@@ -16,7 +16,7 @@
 
     <title>Tweeter</title>
   </head>
-  <body onLoad="getFeed()">
+  <body>
     <!-- Optional JavaScript; choose one of the two! -->
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script
@@ -65,49 +65,34 @@
       </div>
     </nav>
     <br />
-    <div class="container-md">
+    <div>
+      <div class="card border-success mb-3 container-lg">
+        <div class="card-header bg-transparent border-success">
+          <b>Comment</b>
+        </div>
+        <div class="card-body"></div>
+        <form action="tweet" method="post">
+          <div class="form-group mb-3">
+            <textarea
+              class="form-control"
+              id="tweetBody"
+              name="tweetBody"
+              rows="3"
+              maxlength="279"
+              style="resize: none;"
+              placeholder="_____ is the night :0"
+              required
+            ></textarea>
+          </div>
+          <div class="form-group mb-3">
+            <button type="submit" class="btn btn-success">Submit</button>
+          </div>
+        </form>
+      </div>
       <span id="tweets">
-        <!-- Tweets should appear in feed. -->
+        <!-- Tweets auto-fill in this span -->
       </span>
     </div>
   </body>
-  <script>
-    function getFeed() {
-      fetch("/feed")
-        .then(response => response.json())
-        .then(data => {
-          created_on = new Date(data.feed[0].created_on);
-
-          for (let f in data.feed) {
-            // console.log(data.tweets[f].post_id);
-            posted_on = new Date(data.feed[f].posted_on);
-
-            document.getElementById("tweets").innerHTML += `
-            <div class="card border-success mb-3 container-lg">
-              <div class="card-header bg-transparent border-success">
-                <b>${data.feed[f].pref_name}</b> <i>@${
-              data.feed[f].username
-            }</i><i class="float-end text-success">${posted_on.toLocaleDateString() +
-              " " +
-              posted_on.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit"
-              })}</i>
-              </div>
-              <div class="card-body">
-                <div class="lead">${data.feed[f].post_content}</div>
-              </div>
-              <span class="row h5">
-                <div class="col"><a href="/comment" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
-                <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${
-                  data.feed[f].post_likes
-                }</div>
-                <div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
-              </span>
-            </div> 
-            `;
-          }
-        });
-    }
-  </script>
+  <script></script>
 </html>
