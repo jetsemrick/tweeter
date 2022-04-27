@@ -42,17 +42,16 @@ Open `localhost:3000` in browser to access the website.
   - [X] Forms to update password/email
   - [X] Bio? Other information
 - [X] After login, display tweets on main page
-  - [ ] Each tweet allows comment
-  - [ ] Like posts/comments
-  - [ ] Post button on main page
-  - [ ] Fix deletion (delete tweets after deleting account)
+  - [X] Each tweet allows comment
+  - [X] Like posts/comments
+  - [X] Fix deletion (delete tweets after deleting account)
 
 ## Project Requirements
 
-- [ ] 3+ tables
+- [X] 3+ tables
   - [X] Posts
   - [X] Users
-  - [ ] Comments
+  - [X] Comments
   - Posts and users linked with FK `uid`:
   ```
   ALTER TABLE Posts ADD FOREIGN KEY (uid) REFERENCES Users(uid);
@@ -66,12 +65,12 @@ Open `localhost:3000` in browser to access the website.
   - [ ] Users can see their friends list.
   - [ ] Users can view the email of users who post a comment (join). 
 
-- [ ] At least 2 queries with join	
-  - [ ] Join post_id with comments
+- [X] At least 2 queries with join	
+  - [X] Join post_id with comments
 - [X] Database update
   - Change user password
   - Like post
-- [ ] Use "Session"
+- [X] Use "Session"
 
 - [ ] Project Report
 *The project report is to show what you did in the project, especially, how you designed and implemented your system. The first interim report shall include overall system design, ER diagram and (logical) database design. The final report shall include everything (introduction, design, system architecture, implementation, testing, etc.). In the final project report, you are allowed (and suggested) to reuse the contents in report 1.*
