@@ -35,8 +35,9 @@ let connection = mysql.createPool({
 	multipleStatements: true,
 });
 
-// Routes
-// serve static files
+// ROUTES
+// --------------------------------
+// serve static files on HTTP requests
 app.use(express.static(__dirname));
 
 // when accessing the site, check if a session has been created by looking at if there is a session username
@@ -49,30 +50,38 @@ app.get('/', (req, res) => {
 	}
 });
 
-app.get('/feed', (req, res) => {
+// serve signup page (does not require login)
+app.get('/register', (req, res) => {
+	res.sendFile('/www/signup.html', { root: __dirname });
+});
+
+app.get('/profile', (req, res) => {
 	session = req.session;
 	if (!session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
 	} else {
-		connection.query(
-			`SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
-		FROM Posts,Users
-		WHERE Posts.uid = Users.uid
-		ORDER BY posted_on DESC
-	  	`,
-			function (err, feed, fields) {
-				if (err) throw err;
-				if (feed.length == 0) {
-					res.send('No posts found.');
-				} else {
-					res.send({
-						feed: feed,
-					});
-				}
-			}
-		);
+		res.sendFile('/www/profile.html', { root: __dirname });
 	}
 });
+
+app.get('/profile/edit', (req, res) => {
+	session = req.session;
+	if (!session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		res.sendFile('/www/edit_profile.html', { root: __dirname });
+	}
+});
+
+app.get('/post*', (req, res) => {
+	session = req.session;
+	if (!session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		res.sendFile('/www/post.html', { root: __dirname });
+	}
+});
+// --------------------------------
 
 // login POST handling. When the form is submitted in the static html file it will try to post to this method.
 // database logic will go in here to check for a created user already
@@ -106,10 +115,6 @@ app.post('/login', async (req, res) => {
 			}
 		}
 	);
-});
-
-app.get('/register', (req, res) => {
-	res.sendFile('/www/signup.html', { root: __dirname });
 });
 
 app.post('/register', async (req, res) => {
@@ -161,297 +166,326 @@ app.post('/register', async (req, res) => {
 	);
 });
 
-app.get('/profile', (req, res) => {
-	session = req.session;
-	if (!session.uid) {
+app.get('/feed', (req, res) => {
+	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
 	} else {
-		res.sendFile('/www/profile.html', { root: __dirname });
-	}
-});
-
-app.get('/profile/edit', (req, res) => {
-	session = req.session;
-	if (!session.uid) {
-		res.sendFile('/www/login.html', { root: __dirname });
-	} else {
-		res.sendFile('/www/edit_profile.html', { root: __dirname });
+		connection.query(
+			`SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
+		FROM Posts,Users
+		WHERE Posts.uid = Users.uid
+		ORDER BY posted_on DESC
+	  	`,
+			function (err, feed, fields) {
+				if (err) throw err;
+				if (feed.length == 0) {
+					res.send('No posts found.');
+				} else {
+					res.send({
+						feed: feed,
+					});
+				}
+			}
+		);
 	}
 });
 
 app.get('/editProfile', (req, res) => {
-	// pull tweets: SELECT post_id,post_content,post_likes,username FROM Posts INNER JOIN Users ON Posts.uid=Users.uid AND Users.uid=3
-	// pull user details for card
-	connection.query(
-		`
-  SELECT * FROM Users 
-  WHERE username='${req.session.uid}'`,
-		function (err, profile, fields) {
-			if (err) throw err;
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		// pull tweets: SELECT post_id,post_content,post_likes,username FROM Posts INNER JOIN Users ON Posts.uid=Users.uid AND Users.uid=3
+		// pull user details for card
+		connection.query(
+			`
+		SELECT * FROM Users 
+		WHERE username='${req.session.uid}'`,
+			function (err, profile, fields) {
+				if (err) throw err;
 
-			res.send({
-				profile: profile,
-			});
-		}
-	);
+				res.send({
+					profile: profile,
+				});
+			}
+		);
+	}
 });
 
 app.post('/editProfile', (req, res) => {
-	let pass, username, fullname, email, bio;
-	let errors = '';
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		let pass, username, fullname, email, bio;
+		let errors = '';
 
-	console.log('Starting initial user query');
+		console.log('Starting initial user query');
 
-	connection.getConnection(function (err, conn) {
-		conn.query(
-			`
-			SELECT * FROM Users 
-			WHERE username='${req.session.uid}';
-			SELECT username FROM Users WHERE username='${req.body.username}';
-			SELECT email FROM Users 
-			WHERE email='${req.body.email}';`,
-			[1, 2, 3],
-			function (err, result, fields) {
-				if (err) throw err;
+		connection.getConnection(function (err, conn) {
+			conn.query(
+				`
+				SELECT * FROM Users 
+				WHERE username='${req.session.uid}';
+				SELECT username FROM Users WHERE username='${req.body.username}';
+				SELECT email FROM Users 
+				WHERE email='${req.body.email}';`,
+				[1, 2, 3],
+				function (err, result, fields) {
+					if (err) throw err;
 
-				pass = result[0][0].password;
-				if (!bcrypt.compareSync(req.body.password, pass))
-					errors +=
-						"Incorrect password. Please <a href='/profile/edit'>go back</a> and try something different.";
-
-				username = result[0][0].username;
-				fullname = result[0][0].pref_name;
-				email = result[0][0].email;
-				bio = result[0][0].bio;
-
-				console.log('Starting edit checks...'); // LOGGING
-
-				if (req.body.username != '' && errors == '') {
-					console.log('Attempting to query username for check'); // LOGGING
-
-					if (result[1].length > 0) {
-						console.log('Username already in use'); // LOGGING
+					pass = result[0][0].password;
+					if (!bcrypt.compareSync(req.body.password, pass))
 						errors +=
-							"Username already in use. Please <a href='/profile/edit'>go back</a> and try something different.";
-					} else if (String(req.body.username).length > 12) {
-						console.log('Username too long'); // LOGGING
-						errors +=
-							"Username exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.";
-					} else {
-						username = req.body.username;
-					}
-				}
+							"Incorrect password. Please <a href='/profile/edit'>go back</a> and try something different.";
 
-				if (req.body.pref_name != '' && errors == '') {
-					if (String(req.body.pref_name).length > 20) {
-						console.log('Full Name too long'); // LOGGING
-						errors +=
-							"Full name exceeds maximum allowed length of 20 characters. Please <a href='/register'>go back</a> and try something different.";
-					} else {
-						fullname = req.body.pref_name;
-					}
-				}
+					username = result[0][0].username;
+					fullname = result[0][0].pref_name;
+					email = result[0][0].email;
+					bio = result[0][0].bio;
 
-				if (req.body.email != '' && errors == '') {
-					console.log('Attempting to query email for check'); // LOGGING
+					console.log('Starting edit checks...'); // LOGGING
 
-					if (result[2].length > 0) {
-						console.log('Email already in use'); // LOGGING
-						errors +=
-							"Email already in use. Please <a href='/profile/edit'>go back</a> and try something different.";
-					} else if (String(req.body.email).length > 100) {
-						console.log('Email too long'); // LOGGING
-						errors +=
-							"Email exceeds maximum allowed length of 100 characters. Please <a href='/register'>go back</a> and try something different.";
-					} else {
-						email = req.body.email;
-					}
-				}
+					if (req.body.username != '' && errors == '') {
+						console.log('Attempting to query username for check'); // LOGGING
 
-				if (req.body.bio != '' && errors == '') {
-					if (String(req.body.bio).length > 160) {
-						errors +=
-							"Bio exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.";
-					} else {
-						bio = req.body.bio;
-					}
-				}
-
-				if (req.body.newPassword != '' && errors == '') {
-					console.log('Starting password check'); // LOGGING
-
-					if (String(req.body.newPassword).length > 100) {
-						console.log('New password too long'); // LOGGING
-						errors +=
-							"Password exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.";
-					} else {
-						console.log('Attempting to create new password'); // LOGGING
-						bcrypt
-							.hash(req.body.newPassword, SALT_ROUND)
-							.then(function (hash) {
-								pass = hash;
-								console.log('Created new password'); // LOGGING
-								return;
-							});
-					}
-				}
-
-				if (errors == '') {
-					if (fullname != undefined)
-						fullname = fullname.replace(/'/g, "\\'");
-
-					if (bio != undefined) bio = bio.replace(/'/g, "\\'");
-
-					console.log('Attempting query');
-					connection.query(
-						`
-						UPDATE Users
-						SET username = '${username}', password = '${pass}', email = '${email}', pref_name = '${fullname}', bio = '${bio}'
-						WHERE username = '${req.session.uid}'`,
-						function (err) {
-							if (err) throw err;
-
-							console.log('Query successful');
-							req.session.uid = username;
-							res.redirect('/profile');
+						if (result[1].length > 0) {
+							console.log('Username already in use'); // LOGGING
+							errors +=
+								"Username already in use. Please <a href='/profile/edit'>go back</a> and try something different.";
+						} else if (String(req.body.username).length > 12) {
+							console.log('Username too long'); // LOGGING
+							errors +=
+								"Username exceeds maximum length allowed. Please <a href='/register'>go back</a> and try something different.";
+						} else {
+							username = req.body.username;
 						}
-					);
-				} else {
-					console.log('Errors detected. Not updating DB.');
-					res.send(errors);
+					}
+
+					if (req.body.pref_name != '' && errors == '') {
+						if (String(req.body.pref_name).length > 20) {
+							console.log('Full Name too long'); // LOGGING
+							errors +=
+								"Full name exceeds maximum allowed length of 20 characters. Please <a href='/register'>go back</a> and try something different.";
+						} else {
+							fullname = req.body.pref_name;
+						}
+					}
+
+					if (req.body.email != '' && errors == '') {
+						console.log('Attempting to query email for check'); // LOGGING
+
+						if (result[2].length > 0) {
+							console.log('Email already in use'); // LOGGING
+							errors +=
+								"Email already in use. Please <a href='/profile/edit'>go back</a> and try something different.";
+						} else if (String(req.body.email).length > 100) {
+							console.log('Email too long'); // LOGGING
+							errors +=
+								"Email exceeds maximum allowed length of 100 characters. Please <a href='/register'>go back</a> and try something different.";
+						} else {
+							email = req.body.email;
+						}
+					}
+
+					if (req.body.bio != '' && errors == '') {
+						if (String(req.body.bio).length > 160) {
+							errors +=
+								"Bio exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.";
+						} else {
+							bio = req.body.bio;
+						}
+					}
+
+					if (req.body.newPassword != '' && errors == '') {
+						console.log('Starting password check'); // LOGGING
+
+						if (String(req.body.newPassword).length > 100) {
+							console.log('New password too long'); // LOGGING
+							errors +=
+								"Password exceeds maximum allowed length of 160 characters. Please <a href='/register'>go back</a> and try something different.";
+						} else {
+							console.log('Attempting to create new password'); // LOGGING
+							bcrypt
+								.hash(req.body.newPassword, SALT_ROUND)
+								.then(function (hash) {
+									pass = hash;
+									console.log('Created new password'); // LOGGING
+									return;
+								});
+						}
+					}
+
+					if (errors == '') {
+						if (fullname != undefined)
+							fullname = fullname.replace(/'/g, "\\'");
+
+						if (bio != undefined) bio = bio.replace(/'/g, "\\'");
+
+						console.log('Attempting query');
+						connection.query(
+							`
+							UPDATE Users
+							SET username = '${username}', password = '${pass}', email = '${email}', pref_name = '${fullname}', bio = '${bio}'
+							WHERE username = '${req.session.uid}'`,
+							function (err) {
+								if (err) throw err;
+
+								console.log('Query successful');
+								req.session.uid = username;
+								res.redirect('/profile');
+							}
+						);
+					} else {
+						console.log('Errors detected. Not updating DB.');
+						res.send(errors);
+					}
 				}
-			}
-		);
-	});
+			);
+		});
+	}
 });
 
 app.get('/user', (req, res) => {
-	// pull tweets: SELECT post_id,post_content,post_likes,username FROM Posts INNER JOIN Users ON Posts.uid=Users.uid AND Users.uid=3
-	// pull user details for card
-	connection.query(
-		`
-	SELECT * FROM Users 
-	WHERE username='${req.session.uid}'`,
-		function (err, profile, fields) {
-			if (err) throw err;
-
-			connection.query(
-				`
-		SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
-		FROM Posts 
-		INNER JOIN Users ON Posts.uid=Users.uid 
-		AND Users.uid=
-		(SELECT uid from Users WHERE username='${req.session.uid}') 
-		ORDER BY posted_on DESC`,
-				function (err, tweets, fields) {
-					if (err) throw err;
-					res.send({
-						profile: profile,
-						tweets: tweets,
-					});
-				}
-			);
-		}
-	);
-});
-
-app.get('/post*', (req, res) => {
-	session = req.session;
-	if (!session.uid) {
+	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
 	} else {
-		res.sendFile('/www/post.html', { root: __dirname });
+		// pull tweets: SELECT post_id,post_content,post_likes,username FROM Posts INNER JOIN Users ON Posts.uid=Users.uid AND Users.uid=3
+		// pull user details for card
+		connection.query(
+			`
+		SELECT * FROM Users 
+		WHERE username='${req.session.uid}'`,
+			function (err, profile, fields) {
+				if (err) throw err;
+
+				connection.query(
+					`
+			SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
+			FROM Posts 
+			INNER JOIN Users ON Posts.uid=Users.uid 
+			AND Users.uid=
+			(SELECT uid from Users WHERE username='${req.session.uid}') 
+			ORDER BY posted_on DESC`,
+					function (err, tweets, fields) {
+						if (err) throw err;
+						res.send({
+							profile: profile,
+							tweets: tweets,
+						});
+					}
+				);
+			}
+		);
 	}
 });
 
 app.get('/getPost', (req, res) => {
-	connection.query(`
-	SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
-	FROM Posts,Users 
-	WHERE post_id='${req.query.pid}'
-	AND Posts.uid=Users.uid`,
-		function (err, post, fields) {
-			if (err) throw err;
-			connection.query(`
-			SELECT comment_id,comment_content,posted_on,username,pref_name 
-			FROM Users,(SELECT comment_id,comment_content,Comments.posted_on FROM Comments
-			JOIN Posts ON Comments.post_id=Posts.post_id 
-			AND Comments.post_id='${req.query.pid}') AS com
-			WHERE username='${req.session.uid}'
-			ORDER BY posted_on DESC
-				`,
-				function (err, comments, fields) {
-					if (err) throw err;
-					res.send({
-						post: post,
-						comments: comments,
-					});
-				}
-			);
-		}
-	);
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		connection.query(`
+		SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
+		FROM Posts,Users 
+		WHERE post_id='${req.query.pid}'
+		AND Posts.uid=Users.uid`,
+			function (err, post, fields) {
+				if (err) throw err;
+				connection.query(`
+				SELECT comment_id,comment_content,posted_on,username,pref_name 
+				FROM Users,(SELECT comment_id,comment_content,Comments.posted_on FROM Comments
+				JOIN Posts ON Comments.post_id=Posts.post_id 
+				AND Comments.post_id='${req.query.pid}') AS com
+				WHERE username='${req.session.uid}'
+				ORDER BY posted_on DESC
+					`,
+					function (err, comments, fields) {
+						if (err) throw err;
+						res.send({
+							post: post,
+							comments: comments,
+						});
+					}
+				);
+			}
+		);
+	}
 });
 
 app.post('/comment', (req, res) => {
-	connection.query(
-		`
-		INSERT INTO Comments (comment_content, posted_on, post_id, uid) 
-		VALUES ('${req.body.commentBody}', NOW(), '${req.body.pid}', 
-			(SELECT uid from Users WHERE username='${req.session.uid}')
-		)`,
-		function (err) {
-			if (err) throw err;
-			res.redirect('/post?pid=' + req.body.pid);
-		}
-	);
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		connection.query(
+			`
+			INSERT INTO Comments (comment_content, posted_on, post_id, uid) 
+			VALUES ('${req.body.commentBody}', NOW(), '${req.body.pid}', 
+				(SELECT uid from Users WHERE username='${req.session.uid}')
+			)`,
+			function (err) {
+				if (err) throw err;
+				res.redirect('/post?pid=' + req.body.pid);
+			}
+		);
+	}
 });
 
 app.post('/tweet', (req, res) => {
-	connection.query(
-		`
-		INSERT INTO Posts (post_content, posted_on, uid) 
-		VALUES ('${req.body.tweetBody}', NOW(), 
-			(SELECT uid from Users WHERE username='${req.session.uid}')
-		)`,
-		function (err, result, fields) {
-			if (err) throw err;
-			res.redirect('/profile');
-		}
-	);
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		connection.query(
+			`
+			INSERT INTO Posts (post_content, posted_on, uid) 
+			VALUES ('${req.body.tweetBody}', NOW(), 
+				(SELECT uid from Users WHERE username='${req.session.uid}')
+			)`,
+			function (err, result, fields) {
+				if (err) throw err;
+				res.redirect('/profile');
+			}
+		);
+	}
 });
 
 app.get('/like', (req, res) => {
-	connection.query(
-		`
-		UPDATE Posts 
-		SET post_likes = post_likes + 1
-		WHERE Posts.post_id="${req.query.pid}"
-		`,
-		function (err) {
-			if (err) throw err;
-			res.redirect(req.get('referer'));
-		}
-	);
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		connection.query(
+			`
+			UPDATE Posts 
+			SET post_likes = post_likes + 1
+			WHERE Posts.post_id="${req.query.pid}"
+			`,
+			function (err) {
+				if (err) throw err;
+				res.redirect(req.get('referer'));
+			}
+		);
+	}
 });
 
 app.post('/deleteAccount', (req, res) => {
-	connection.query(
-		`DELETE FROM Posts
-	  WHERE uid=(SELECT uid from Users WHERE username='${req.session.uid}')`,
-		function (err) {
-			if (err) throw err;
-			connection.query(
-				`
-		DELETE FROM Users
-		WHERE username='${req.session.uid}'`,
-				function (err) {
-					if (err) throw err;
-					req.session.destroy();
-					res.redirect('/');
-				}
-			);
-		}
-	);
+	if (!req.session.uid) {
+		res.sendFile('/www/login.html', { root: __dirname });
+	} else {
+		connection.query(
+			`DELETE FROM Posts
+			WHERE uid=(SELECT uid from Users WHERE username='${req.session.uid}')`,
+			function (err) {
+				if (err) throw err;
+				connection.query(
+					`
+			DELETE FROM Users
+			WHERE username='${req.session.uid}'`,
+					function (err) {
+						if (err) throw err;
+						req.session.destroy();
+						res.redirect('/');
+					}
+				);
+			}
+		);
+	}
 });
 
 // logout by destroying session and redirecting to homepage

@@ -21,6 +21,8 @@ Requires NodeJS to run. For quick installation:
 
 Open `localhost:3000` in browser to access the website.
 
+You can also navigate to our [Heroku instance](https://eecs-647-afcrichmond.herokuapp.com/) to view the production deployment.
+
 ## Tech Stack
 - HTML, NodeJS
 - CSS was bootstrapped with [HTML Bootstrap v5.3](https://getbootstrap.com/docs/5.1/getting-started/introduction/)
