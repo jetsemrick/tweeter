@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 var mysql = require('mysql');
 const { query } = require('express');
 
-const HTTP_PORT = 3000;
+const HTTP_PORT = 80;
 const SALT_ROUND = 12;
 
 var session;
