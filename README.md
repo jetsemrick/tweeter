@@ -45,6 +45,7 @@ Open `localhost:3000` in browser to access the website.
   - [ ] Each tweet allows comment
   - [ ] Like posts/comments
   - [ ] Post button on main page
+  - [ ] Fix deletion (delete tweets after deleting account)
 
 ## Project Requirements
 

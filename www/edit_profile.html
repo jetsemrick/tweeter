@@ -47,7 +47,7 @@
 
       <div class="row justify-content-center flex-nowrap display-4">Edit Profile</div>
     <br>
-    <form id="signup" action="/editProfile" method="post">
+    <form id="signup" action="/editProfile" method="post" autocomplete="off">
       <div class="row">
             <div class="col">
                 <label for="editUsername" class="form-label">Username</label>
@@ -89,7 +89,7 @@
                 <input type="password" class="form-control" id="newUserPass" name="password" required>
                 <div class="form-text">Please enter your password to make a change</div>
             </div>
-            <div class="flex-nowrap"><button type="submit" class="btn btn-success">Submit Changes</button><button type="submit" class="btn btn-danger float-end"><i class="fa-light fa-trash-can"></i> Delete Account</button></div>
+            <div class="flex-nowrap"><button type="submit" class="btn btn-success">Submit Changes</button><button type="submit" formaction="/deleteAccount" class="btn btn-danger float-end"><i class="fa-light fa-trash-can"></i> Delete Account</button></div>
         </div>
         <div class="col"></div>
       </div>
@@ -102,13 +102,10 @@
       fetch('/editProfile')
         .then(response => response.json())
         .then(data => {
-
           document.getElementById("oldUsername").innerHTML = "@" + data.profile[0].username;
           document.getElementById("oldEmail").innerHTML = data.profile[0].email;
           document.getElementById("oldFullName").innerHTML = data.profile[0].pref_name;
         });
     }
-
   </script>
-
 </html>

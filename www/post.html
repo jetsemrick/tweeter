@@ -16,7 +16,7 @@
 
     <title>Tweeter</title>
   </head>
-  <body onLoad="getFeed()">
+  <body onload="getPost()">
     <!-- Optional JavaScript; choose one of the two! -->
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script
@@ -65,49 +65,76 @@
       </div>
     </nav>
     <br />
+		<span id="post">
+			<!-- Post should appear first. -->
+		</span>
     <div class="container-md">
-      <span id="tweets">
-        <!-- Tweets should appear in feed. -->
+			<div class="card border-success mb-3 container-lg">
+				<div class="card-header bg-transparent border-success">
+					<b>Post a comment</b>
+				</div>
+				<div class="card-body"></div>
+				<form action="comment" method="post">
+					<input type="hidden" id="pid_storage" name="pid">
+					<div class="form-group mb-3">
+						<textarea class="form-control" id="commentBody" name="commentBody" rows="3" maxlength="279" style="resize: none;" placeholder="Really????" required></textarea>
+					</div>
+					<div class="form-group mb-3">
+						<button type="submit" class="btn btn-success">Submit</button>
+					</div>
+				</form>
+			</div>
+      <span id="comments">
+        <!-- Comments should appear in feed. -->
       </span>
     </div>
   </body>
   <script>
-    function getFeed() {
-      fetch("/feed")
-        .then(response => response.json())
-        .then(data => {
-          created_on = new Date(data.feed[0].created_on);
+		function getPost() {
+			const params = new URLSearchParams(window.location.search);
+			document.getElementById("pid_storage").value = params.get("pid");
 
-		  for (let f in data.feed) {
+			fetch("/getPost?pid=" + params.get("pid"))
+			.then(response => response.json())
+			.then(data => {
+				posted_on = new Date(data.post[0].posted_on);
+
+				document.getElementById("post").innerHTML += `
+					<div class="card border-success mb-3 container-lg">
+						<div class="card-header bg-transparent border-success">
+							<b>${data.post[0].pref_name}</b> <i>@${data.post[0].username}</i><i class="float-end text-success">${posted_on.toLocaleDateString() + " " + posted_on.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</i>
+						</div>
+						<div class="card-body">
+							<div class="lead">${data.post[0].post_content}</div>
+						</div>
+						<span class="row h5">
+							<div class="col"><a href="/post?pid=${data.post[0].post_id}" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
+							<div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${data.post[0].post_likes}</div>
+							<div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
+						</span>
+					</div> 
+					`
+					
+					for(let f in data.comments) {
             // console.log(data.tweets[f].post_id);
-            posted_on = new Date(data.feed[f].posted_on);
+            posted_on = new Date(data.comments[f].posted_on);
 
-            document.getElementById("tweets").innerHTML += `
+            document.getElementById("comments").innerHTML += `
             <div class="card border-success mb-3 container-lg">
               <div class="card-header bg-transparent border-success">
-                <b>${data.feed[f].pref_name}</b> <i>@${
-              data.feed[f].username
-            }</i><i class="float-end text-success">${posted_on.toLocaleDateString() +
-              " " +
-              posted_on.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit"
-              })}</i>
+                <b>${data.comments[f].pref_name}</b> <i>@${data.comments[f].username}</i><i class="float-end text-success">${posted_on.toLocaleDateString() + " " + posted_on.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</i>
               </div>
               <div class="card-body">
-                <div class="lead">${data.feed[f].post_content}</div>
+                <div class="lead">${data.comments[f].comment_content}</div>
               </div>
               <span class="row h5">
-                <div class="col"><a href="/post?pid=${data.feed[f].post_id}" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
-                <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${
-                  data.feed[f].post_likes
-                }</div>
+                <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${data.comments[f].comment_likes}</div>
                 <div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
               </span>
             </div> 
-            `;
-          }
-        });
-    }
+            `         
+          } 
+			});
+		}
   </script>
 </html>

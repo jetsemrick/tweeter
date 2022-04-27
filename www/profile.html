@@ -55,15 +55,9 @@
                 <a href="/profile/edit" class="text-success"><i class="fa-light fa-pen-to-square float-end"></i></a>
               </h5>
               <i class="card-text">Joined <span id="userCard-joined"></span></i>
-              <p class="card-text" id="userCard-bio"></p>
-            </div>
-            <div class="card-footer">
-              <span># Followers // </span>
-              <span># Following</span>
+              <p class="card-text" id="userCard-bio">It's quiet around here... User doesn't have a bio yet.</p>
             </div>
           </div>
-          <!-- OR "Stop Following" if already following -->
-          <button class="btn btn-success">Follow</button>
         </div>
         <div class="col-9">
           <div>
@@ -99,7 +93,8 @@
           created_on = new Date(data.profile[0].created_on);
 
           document.getElementById("userCard-name").innerHTML = data.profile[0].username;
-          document.getElementById("userCard-bio").innerHTML = data.profile[0].bio;
+					if(data.profile[0].bio != "")
+          	document.getElementById("userCard-bio").innerHTML = data.profile[0].bio;
           document.getElementById("userCard-joined").innerHTML = created_on.getFullYear();
           document.getElementById("title").innerHTML = data.profile[0].username;
 
@@ -116,7 +111,7 @@
                 <div class="lead">${data.tweets[f].post_content}</div>
               </div>
               <span class="row h5">
-                <div class="col"><a href="/" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
+                <div class="col"><a href="/post?pid=${data.tweets[f].post_id}" class="text-success float-end"><i class="fa-light fa-comment"></i></a></div>
                 <div class="col text-center text-success"><a href="/" class="text-success"><i class="fa-light fa-thumbs-up"></i></a> ${data.tweets[f].post_likes}</div>
                 <div class="col"><a href="/" class="text-success float-start"><i class="fa-light fa-retweet"></i></a></div>
               </span>

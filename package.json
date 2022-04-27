@@ -8,5 +8,15 @@
     "mysql": "^2.18.1",
     "req-flash": "^0.0.3",
     "sessions": "^0.0.2-7"
-  }
+  },
+	"prettier": {
+			"trailingComma": "es5",
+			"useTabs": true,
+			"tabWidth": 4,
+			"semi": true,
+			"singleQuote": true,
+			"bracketSameLine": true,
+			"arrowParens": "always",
+			"singleAttributePerLine": false
+	}
 }
