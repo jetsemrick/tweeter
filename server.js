@@ -19,7 +19,8 @@ app.use(cookieParser());
 // session last one day
 app.use(
 	sessions({
-		secret: 'hBnOe8tMP0UrjkBAk4GfnTG72prbMay4CEZoEYoaeALAowHO3DBLBGSScNPWZdak',
+		secret:
+			'hBnOe8tMP0UrjkBAk4GfnTG72prbMay4CEZoEYoaeALAowHO3DBLBGSScNPWZdak',
 		saveUninitialized: true,
 		cookie: { maxAge: 1000 * 60 * 60 * 24 },
 		resave: false,
@@ -83,7 +84,6 @@ app.get('/post*', (req, res) => {
 });
 // --------------------------------
 
-
 // API HANDLERS
 // --------------------------------
 // All of the individual API endpoints that make requests to the DB
@@ -92,12 +92,12 @@ app.get('/post*', (req, res) => {
 // database logic will go in here to check for a created user already
 app.post('/login', async (req, res) => {
 	connection.query(
-	`
+		`
 	SELECT * FROM Users 
 	WHERE username='${req.body.username}' 
 	OR email='${req.body.username}'
 	`,
-		function (err, result, fields) {
+		function(err, result, fields) {
 			if (err) throw err;
 
 			if (result.length == 0) {
@@ -130,7 +130,7 @@ app.post('/register', async (req, res) => {
   SELECT username FROM Users 
   WHERE username='${req.body.username}' 
   OR email='${req.body.username}'`,
-		function (err, result, fields) {
+		function(err, result, fields) {
 			if (err) throw err;
 
 			// if the result is not empty, a user already exists with those parameters and the user needs to try again
@@ -158,7 +158,7 @@ app.post('/register', async (req, res) => {
 						`
 						INSERT INTO Users (username, email, password, created_on) 
 						VALUES ('${req.body.username}', '${req.body.email}', '${hash}', NOW())`,
-						function (err, result, fields) {
+						function(err, result, fields) {
 							if (err) throw err;
 
 							res.send(
@@ -178,12 +178,12 @@ app.get('/feed', (req, res) => {
 		res.sendFile('/www/login.html', { root: __dirname });
 	} else {
 		connection.query(
-			`SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
-		FROM Posts,Users
-		WHERE Posts.uid = Users.uid
+			`SELECT post_id,Posts.post_content,Posts.post_likes,Users.username,Users.pref_name,Posts.posted_on 
+		FROM Posts
+		JOIN Users ON Users.uid = Posts.uid
 		ORDER BY posted_on DESC
 	  	`,
-			function (err, feed, fields) {
+			function(err, feed, fields) {
 				if (err) throw err;
 				if (feed.length == 0) {
 					res.send('No posts found.');
@@ -208,7 +208,7 @@ app.get('/editProfile', (req, res) => {
 			`
 		SELECT * FROM Users 
 		WHERE username='${req.session.uid}'`,
-			function (err, profile, fields) {
+			function(err, profile, fields) {
 				if (err) throw err;
 
 				res.send({
@@ -229,7 +229,7 @@ app.post('/editProfile', (req, res) => {
 
 		console.log('Starting initial user query'); // LOGGING
 
-		connection.getConnection(function (err, conn) {
+		connection.getConnection(function(err, conn) {
 			conn.query(
 				`
 				SELECT * FROM Users 
@@ -238,7 +238,7 @@ app.post('/editProfile', (req, res) => {
 				SELECT email FROM Users 
 				WHERE email='${req.body.email}';`,
 				[1, 2, 3],
-				function (err, result, fields) {
+				function(err, result, fields) {
 					if (err) throw err;
 
 					pass = result[0][0].password;
@@ -315,7 +315,7 @@ app.post('/editProfile', (req, res) => {
 							console.log('Attempting to create new password'); // LOGGING
 							bcrypt
 								.hash(req.body.newPassword, SALT_ROUND)
-								.then(function (hash) {
+								.then(function(hash) {
 									pass = hash;
 									console.log('Created new password'); // LOGGING
 									return;
@@ -335,7 +335,7 @@ app.post('/editProfile', (req, res) => {
 							UPDATE Users
 							SET username = '${username}', password = '${pass}', email = '${email}', pref_name = '${fullname}', bio = '${bio}'
 							WHERE username = '${req.session.uid}'`,
-							function (err) {
+							function(err) {
 								if (err) throw err;
 
 								console.log('Query successful');
@@ -364,7 +364,7 @@ app.get('/user', (req, res) => {
 			`
 		SELECT * FROM Users 
 		WHERE username='${req.session.uid}'`,
-			function (err, profile, fields) {
+			function(err, profile, fields) {
 				if (err) throw err;
 
 				connection.query(
@@ -375,7 +375,7 @@ app.get('/user', (req, res) => {
 			AND Users.uid=
 			(SELECT uid from Users WHERE username='${req.session.uid}') 
 			ORDER BY posted_on DESC`,
-					function (err, tweets, fields) {
+					function(err, tweets, fields) {
 						if (err) throw err;
 						res.send({
 							profile: profile,
@@ -393,14 +393,16 @@ app.get('/getPost', (req, res) => {
 	if (!req.session.uid) {
 		res.sendFile('/www/login.html', { root: __dirname });
 	} else {
-		connection.query(`
+		connection.query(
+			`
 		SELECT post_id,post_content,post_likes,username,pref_name,posted_on 
 		FROM Posts,Users 
 		WHERE post_id='${req.query.pid}'
 		AND Posts.uid=Users.uid`,
-			function (err, post, fields) {
+			function(err, post, fields) {
 				if (err) throw err;
-				connection.query(`
+				connection.query(
+					`
 				SELECT comment_id,comment_content,posted_on,username,pref_name 
 				FROM Users,(SELECT comment_id,comment_content,Comments.posted_on FROM Comments
 				JOIN Posts ON Comments.post_id=Posts.post_id 
@@ -408,7 +410,7 @@ app.get('/getPost', (req, res) => {
 				WHERE username=(SELECT username from Users,Comments WHERE Users.uid=Comments.uid)
 				ORDER BY posted_on DESC
 					`,
-					function (err, comments, fields) {
+					function(err, comments, fields) {
 						if (err) throw err;
 						res.send({
 							post: post,
@@ -432,7 +434,7 @@ app.post('/comment', (req, res) => {
 			VALUES ('${req.body.commentBody}', NOW(), '${req.body.pid}', 
 				(SELECT uid from Users WHERE username='${req.session.uid}')
 			)`,
-			function (err) {
+			function(err) {
 				if (err) throw err;
 				res.redirect('/post?pid=' + req.body.pid);
 			}
@@ -451,7 +453,7 @@ app.post('/tweet', (req, res) => {
 			VALUES ('${req.body.tweetBody}', NOW(), 
 				(SELECT uid from Users WHERE username='${req.session.uid}')
 			)`,
-			function (err, result, fields) {
+			function(err, result, fields) {
 				if (err) throw err;
 				res.redirect('/profile');
 			}
@@ -470,7 +472,7 @@ app.get('/like', (req, res) => {
 			SET post_likes = post_likes + 1
 			WHERE Posts.post_id="${req.query.pid}"
 			`,
-			function (err) {
+			function(err) {
 				if (err) throw err;
 				res.redirect(req.get('referer'));
 			}
@@ -486,13 +488,13 @@ app.post('/deleteAccount', (req, res) => {
 		connection.query(
 			`DELETE FROM Posts
 			WHERE uid=(SELECT uid from Users WHERE username='${req.session.uid}')`,
-			function (err) {
+			function(err) {
 				if (err) throw err;
 				connection.query(
 					`
 			DELETE FROM Users
 			WHERE username='${req.session.uid}'`,
-					function (err) {
+					function(err) {
 						if (err) throw err;
 						req.session.destroy();
 						res.redirect('/');
