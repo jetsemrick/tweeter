@@ -407,7 +407,7 @@ app.get('/getPost', (req, res) => {
 				FROM Users,(SELECT comment_id,comment_content,Comments.posted_on FROM Comments
 				JOIN Posts ON Comments.post_id=Posts.post_id 
 				AND Comments.post_id='${req.query.pid}') AS com
-				WHERE username=(SELECT username from Users,Comments WHERE Users.uid=Comments.uid)
+				WHERE username IN (SELECT username from Users,Comments WHERE Users.uid=Comments.uid)
 				ORDER BY posted_on DESC
 					`,
 					function(err, comments, fields) {
